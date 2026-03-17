@@ -309,8 +309,7 @@ export const prepareBatch1 = action({
 
       const completion = await generatebatch1(emptyPlan.userPrompt);
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
+      const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
 
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,
@@ -370,8 +369,7 @@ export const prepareBatch2 = action({
         toDate,
       });
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
+      const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
 
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,
@@ -433,8 +431,7 @@ export const prepareBatch3 = action({
         toDate,
       });
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
+      const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
 
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,

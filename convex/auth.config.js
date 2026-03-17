@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: process.env.CUSTOM_DOMAIN,
+      domain: process.env.CLERK_JWT_ISSUER_DOMAIN,
       applicationID: "convex",
     },
   ],

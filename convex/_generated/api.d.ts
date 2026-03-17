@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as InviteEmail from "../InviteEmail.js";
 import type * as access from "../access.js";
 import type * as cleanup from "../cleanup.js";
 import type * as communityPlans from "../communityPlans.js";
@@ -17,7 +18,6 @@ import type * as feedback from "../feedback.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as invite from "../invite.js";
-import type * as InviteEmail from "../InviteEmail.js";
 import type * as lib from "../lib.js";
 import type * as payments from "../payments.js";
 import type * as plan from "../plan.js";
@@ -35,15 +35,9 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-/**
- * A utility for referencing Convex functions in your app's API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
+
 declare const fullApi: ApiFromModules<{
+  InviteEmail: typeof InviteEmail;
   access: typeof access;
   cleanup: typeof cleanup;
   communityPlans: typeof communityPlans;
@@ -53,7 +47,6 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   images: typeof images;
   invite: typeof invite;
-  InviteEmail: typeof InviteEmail;
   lib: typeof lib;
   payments: typeof payments;
   plan: typeof plan;
@@ -66,14 +59,30 @@ declare const fullApi: ApiFromModules<{
   utils: typeof utils;
   weather: typeof weather;
 }>;
-declare const fullApiWithMounts: typeof fullApi;
 
+/**
+ * A utility for referencing Convex functions in your app's public API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 export declare const api: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "public">
 >;
+
+/**
+ * A utility for referencing Convex functions in your app's internal API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = internal.myModule.myFunction;
+ * ```
+ */
 export declare const internal: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "internal">
 >;
 
@@ -92,6 +101,7 @@ export declare const components: {
                 period: number;
                 rate: number;
                 shards?: number;
+                start?: null;
               }
             | {
                 capacity?: number;
@@ -116,6 +126,59 @@ export declare const components: {
         { before?: number },
         null
       >;
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
+      getValue: FunctionReference<
+        "query",
+        "internal",
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          key?: string;
+          name: string;
+          sampleShards?: number;
+        },
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          shard: number;
+          ts: number;
+          value: number;
+        }
+      >;
       rateLimit: FunctionReference<
         "mutation",
         "internal",
@@ -128,6 +191,7 @@ export declare const components: {
                 period: number;
                 rate: number;
                 shards?: number;
+                start?: null;
               }
             | {
                 capacity?: number;
@@ -152,6 +216,9 @@ export declare const components: {
         { key?: string; name: string },
         null
       >;
+    };
+    time: {
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
     };
   };
 };

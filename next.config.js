@@ -15,7 +15,17 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "strong-llama-503.convex.cloud",
+        port: "",
+      },
+      {
+        protocol: "https",
         hostname: "openweathermap.org",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
         port: "",
       },
     ],

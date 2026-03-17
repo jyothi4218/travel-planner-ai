@@ -4,25 +4,28 @@ import {
   batch3Schema
 } from "./schemas";
 
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const promptSuffix = `generate travel data according to the schema and in json format,
                      do not return anything in your response outside of curly braces, 
                      generate response as per the functin schema provided. Dates given,
                      activity preference and travelling with may influence likw 50% while generating plan.`;
 
-const callOpenAIApi = (prompt: string, schema: any, description: string) => {
+const callGroqApi = (prompt: string, schema: any, description: string) => {
   console.log({ prompt, schema });
-  return openai.chat.completions.create({
-    model: "gpt-4o-mini",
+  return groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
     messages: [
       { role: "system", content: "You are a helpful travel assistant." },
       { role: "user", content: prompt },
     ],
-    functions: [{ name: "set_travel_details", parameters: schema, description }],
-    function_call: { name: "set_travel_details" },
+    tools: [{ 
+      type: "function",
+      function: { name: "set_travel_details", parameters: schema, description } 
+    }],
+    tool_choice: { type: "function", function: { name: "set_travel_details" } },
   });
 }
 
@@ -38,10 +41,10 @@ export const generatebatch1 = (promptText: string) => {
   
   Ensure that the function response adheres to the schema provided and is in JSON format. The response should not contain anything outside of the defined schema.
   `;
-  return callOpenAIApi(prompt, batch1Schema, description);
+  return callGroqApi(prompt, batch1Schema, description);
 }
 
-type OpenAIInputType = {
+type GroqInputType = {
   userPrompt: string;
   activityPreferences?: string[] | undefined;
   fromDate?: number | undefined;
@@ -49,7 +52,7 @@ type OpenAIInputType = {
   companion?: string | undefined;
 };
 
-export const generatebatch2 = (inputParams: OpenAIInputType) => {
+export const generatebatch2 = (inputParams: GroqInputType) => {
   const description = `Generate a description of recommendations for an adventurous trip according to the following schema:
   - Top Adventures Activities:
     - An array listing top adventure activities to do, including at least 5 activities.
@@ -62,10 +65,10 @@ export const generatebatch2 = (inputParams: OpenAIInputType) => {
     - An array containing items that should be included in the packing checklist for the trip.
   
   Ensure that the function response adheres to the schema provided and is in JSON format. The response should not contain anything outside of the defined schema.`;
-  return callOpenAIApi(getPropmpt(inputParams), batch2Schema, description);
+  return callGroqApi(getPrompt(inputParams), batch2Schema, description);
 }
 
-export const generatebatch3 = (inputParams: OpenAIInputType) => {
+export const generatebatch3 = (inputParams: GroqInputType) => {
   const description = `Generate a description of a travel itinerary and top places to visit according to the following schema:
   - Itinerary:
     - An array containing details of the itinerary for the specified number of days.
@@ -79,10 +82,10 @@ export const generatebatch3 = (inputParams: OpenAIInputType) => {
     - Each place includes a name and coordinates (latitude and longitude).
   
   Ensure that the function response adheres to the schema provided and is in JSON format. The response should not contain anything outside of the defined schema.`;
-  return callOpenAIApi(getPropmpt(inputParams), batch3Schema, description);
+  return callGroqApi(getPrompt(inputParams), batch3Schema, description);
 }
 
-const getPropmpt = ({ userPrompt, activityPreferences, companion, fromDate, toDate }: OpenAIInputType) => {
+const getPrompt = ({ userPrompt, activityPreferences, companion, fromDate, toDate }: GroqInputType) => {
   let prompt = `${userPrompt}, from date-${fromDate} to date-${toDate}`;
 
   if (companion && companion.length > 0) prompt += `${prompt}, travelling with-${companion}`;

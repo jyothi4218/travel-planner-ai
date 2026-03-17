@@ -37,7 +37,7 @@ export const createUser = internalMutation({
         userId,
         credits: 0,
         email,
-        freeCredits: 2,
+        freeCredits: 99,
         firstName,
         lastName,
       });
