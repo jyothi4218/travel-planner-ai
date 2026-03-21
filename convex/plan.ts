@@ -310,15 +310,13 @@ export const prepareBatch1 = action({
       const completion = await generatebatch1(emptyPlan.userPrompt);
 
       const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
-
-      const modelName = JSON.parse(nameMsg) as Pick<
-        Doc<"plan">,
-        "abouttheplace" | "besttimetovisit"
-      >;
+      const modelName = JSON.parse(nameMsg);
 
       await ctx.runMutation(internal.plan.updateAboutThePlaceBestTimeToVisit, {
         abouttheplace: modelName.abouttheplace,
         besttimetovisit: modelName.besttimetovisit,
+        triphighlights: modelName.triPhighlights,
+        weatheranalysis: modelName.weatheranalysis,
         planId: emptyPlan._id,
       });
     } catch (error) {
@@ -369,22 +367,16 @@ export const prepareBatch2 = action({
         toDate,
       });
 
-      const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
-
-      const modelName = JSON.parse(nameMsg) as Pick<
-        Doc<"plan">,
-        | "adventuresactivitiestodo"
-        | "localcuisinerecommendations"
-        | "packingchecklist"
-      >;
+const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
+      const modelName = JSON.parse(nameMsg);
 
       await ctx.runMutation(
-        internal.plan
-          .updateActivitiesToDoPackingChecklistLocalCuisineRecommendations,
+        internal.plan.updateActivitiesToDoPackingChecklistLocalCuisineRecommendations,
         {
           adventuresactivitiestodo: modelName.adventuresactivitiestodo,
           localcuisinerecommendations: modelName.localcuisinerecommendations,
           packingchecklist: modelName.packingchecklist,
+          budgetrange: modelName.budgetrange,
           planId: emptyPlan._id,
         }
       );
@@ -457,15 +449,20 @@ export const updateAboutThePlaceBestTimeToVisit = internalMutation({
     planId: v.id("plan"),
     abouttheplace: v.string(),
     besttimetovisit: v.string(),
+    triphighlights: v.optional(v.string()),
+    weatheranalysis: v.optional(v.object({
+      expectedconditions: v.string(),
+      besttimetovisit: v.string(),
+    })),
   },
   handler: async (ctx, args) => {
     const plan = await ctx.db.get(args.planId);
-    console.log(
-      `updateAboutThePlaceBestTimeToVisit called on planId : ${args.planId}`
-    );
+    console.log(`updateAboutThePlaceBestTimeToVisit called on planId : ${args.planId}`);
     await ctx.db.patch(args.planId, {
       abouttheplace: args.abouttheplace,
       besttimetovisit: args.besttimetovisit,
+      triphighlights: args.triphighlights,
+      weatheranalysis: args.weatheranalysis,
       contentGenerationState: {
         ...plan!.contentGenerationState,
         abouttheplace: true,
@@ -482,16 +479,27 @@ export const updateActivitiesToDoPackingChecklistLocalCuisineRecommendations =
       adventuresactivitiestodo: v.array(v.string()),
       packingchecklist: v.array(v.string()),
       localcuisinerecommendations: v.array(v.string()),
+      budgetrange: v.optional(v.object({
+        totalmin: v.number(),
+        totalmax: v.number(),
+        currency: v.string(),
+        accommodation: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+        food: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+        transport: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+        activities: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+        contingency: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+      })),
     },
     handler: async (ctx, args) => {
       const plan = await ctx.db.get(args.planId);
       console.log(
         `updateActivitiesToDoPackingChecklistLocalCuisineRecommendations called on planId : ${args.planId}`
       );
-      await ctx.db.patch(args.planId, {
+await ctx.db.patch(args.planId, {
         adventuresactivitiestodo: args.adventuresactivitiestodo,
         packingchecklist: args.packingchecklist,
         localcuisinerecommendations: args.localcuisinerecommendations,
+        budgetrange: args.budgetrange,
         contentGenerationState: {
           ...plan!.contentGenerationState,
           adventuresactivitiestodo: true,
@@ -518,25 +526,20 @@ export const updateItineraryTopPlacesToVisit = internalMutation({
       v.object({
         title: v.string(),
         activities: v.object({
-          morning: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
-          afternoon: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
-          evening: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
+          morning: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          afternoon: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          evening: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          night: v.optional(v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() }))),
         }),
+        foodrecommendations: v.optional(v.array(v.string())),
+        stayoptions: v.optional(v.array(v.string())),
+        optionalactivities: v.optional(v.array(v.string())),
+        quickbookings: v.optional(v.array(v.object({
+          name: v.string(),
+          url: v.string(),
+          type: v.string(),
+        }))),
+        tip: v.optional(v.string()),
       })
     ),
   },
@@ -693,6 +696,7 @@ export const createEmptyPlan = mutation({
     toDate: v.number(),
     companion: v.optional(v.string()),
     isGeneratedUsingAI: v.boolean(),
+    userPrompt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await getIdentityOrThrow(ctx);
@@ -705,7 +709,7 @@ export const createEmptyPlan = mutation({
       adventuresactivitiestodo: [],
       topplacestovisit: [],
       userId: identity.subject,
-      userPrompt: `${args.noOfDays} days trip to ${args.placeName}`,
+      userPrompt: args.userPrompt ?? `${args.noOfDays} days trip to ${args.placeName}`,
       besttimetovisit: "",
       itinerary: [],
       storageId: null,

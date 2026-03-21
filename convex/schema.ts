@@ -26,27 +26,37 @@ export default defineSchema({
       v.object({
         title: v.string(),
         activities: v.object({
-          morning: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
-          afternoon: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
-          evening: v.array(
-            v.object({
-              itineraryItem: v.string(),
-              briefDescription: v.string(),
-            })
-          ),
+          morning: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          afternoon: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          evening: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
+          night: v.optional(v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() }))),
         }),
+        foodrecommendations: v.optional(v.array(v.string())),
+        stayoptions: v.optional(v.array(v.string())),
+        optionalactivities: v.optional(v.array(v.string())),
+        quickbookings: v.optional(v.array(v.object({
+          name: v.string(),
+          url: v.string(),
+          type: v.string(),
+        }))),
+        tip: v.optional(v.string()),
       })
     ),
+    triphighlights: v.optional(v.string()),
+    weatheranalysis: v.optional(v.object({
+      expectedconditions: v.string(),
+      besttimetovisit: v.string(),
+    })),
+    budgetrange: v.optional(v.object({
+      totalmin: v.number(),
+      totalmax: v.number(),
+      currency: v.string(),
+      accommodation: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+      food: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+      transport: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+      activities: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+      contingency: v.object({ min: v.number(), max: v.number(), percentage: v.number() }),
+    })),
     contentGenerationState: v.object({
       imagination: v.boolean(),
       abouttheplace: v.boolean(),

@@ -98,7 +98,12 @@ const Plan = ({ planId }: PlanProps) => {
         content={plan?.abouttheplace}
         allowEdit={true}
       />
-      <Weather placeName={plan?.nameoftheplace} />
+      <Weather
+        placeName={plan?.nameoftheplace}
+        weatheranalysis={plan?.weatheranalysis}
+        besttimetovisit={plan?.besttimetovisit}
+        isLoading={isLoading || !plan?.contentGenerationState.abouttheplace}
+      />
       <TopActivities
         activities={plan?.adventuresactivitiestodo}
         planId={planId}
@@ -113,11 +118,12 @@ const Plan = ({ planId }: PlanProps) => {
         isLoading={isLoading || !plan?.contentGenerationState.topplacestovisit}
         allowEdit={true}
       />
-      <Itinerary
+    <Itinerary
         itinerary={plan?.itinerary}
         planId={planId}
         isLoading={isLoading || !plan?.contentGenerationState.itinerary}
         allowEdit={true}
+        fromDate={plan?.fromDate}
       />
       <LocalCuisineRecommendations
         recommendations={plan?.localcuisinerecommendations}
