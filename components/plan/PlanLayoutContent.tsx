@@ -22,7 +22,9 @@ const PlanLayoutContent = ({
              lg:border-r lg:border-muted-foreground/30 
              relative"
           >
-            <Sidebar planId={planId} isPublic={isPublic}/>
+            <div className="sticky top-[5.6rem] h-[calc(100vh-6.5rem)] overflow-y-auto w-full pr-2 scrollbar-thin">
+              <Sidebar planId={planId} isPublic={isPublic}/>
+            </div>
           </div>
           <div className="md:col-span-4 pl-4 lg:pl-8">{children}</div>
         </div>

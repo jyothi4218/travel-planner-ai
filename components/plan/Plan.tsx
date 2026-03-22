@@ -19,6 +19,7 @@ import Weather from "@/components/sections/Weather";
 import PlanMetaData from "@/components/sections/PlanMetaData";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import BudgetRange from "@/components/sections/BudgetRange";
 
 type PlanProps = {
   planId: string;
@@ -112,6 +113,7 @@ const Plan = ({ planId }: PlanProps) => {
         }
         allowEdit={true}
       />
+
       <TopPlacesToVisit
         topPlacesToVisit={plan?.topplacestovisit}
         planId={planId}
@@ -124,6 +126,11 @@ const Plan = ({ planId }: PlanProps) => {
         isLoading={isLoading || !plan?.contentGenerationState.itinerary}
         allowEdit={true}
         fromDate={plan?.fromDate}
+      />
+
+      <BudgetRange
+        budgetrange={plan?.budgetrange}
+        isLoading={isLoading || !plan?.contentGenerationState.adventuresactivitiestodo}
       />
       <LocalCuisineRecommendations
         recommendations={plan?.localcuisinerecommendations}

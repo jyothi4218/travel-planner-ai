@@ -9,7 +9,8 @@ import { usePlanContext } from "@/contexts/PlanContextProvider";
 import { controlCenterSections, planSections } from "@/lib/constants";
 import { LockIcon } from "lucide-react";
 import { TooltipContainer } from "@/components/shared/Toolip";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import RefinePlanDialog from "@/components/sections/RefinePlanDialog"
 
 const Sidebar = ({
   planId,
@@ -36,6 +37,7 @@ const Sidebar = ({
         </h2>
         <div className="flex flex-col">
           {sections.map((section) => (
+
             <Link
               href={`/plans/${planId}/${isPublic ? "community-plan" : "plan"}#${section.id}`}
               key={section.id}
@@ -64,6 +66,7 @@ const Sidebar = ({
           Control Center
         </h2>
         <div className="flex flex-col">
+          {!isPublic && <RefinePlanDialog planId={planId} />}
           {controlCenterSections.map((link) => {
             if (isPublic)
               return (
@@ -104,6 +107,7 @@ const Sidebar = ({
           })}
         </div>
       </div>
+
     </aside>
   );
 };
