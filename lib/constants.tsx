@@ -110,7 +110,7 @@ export const planSections: {
   },
   {
     id: "topplacestovisit",
-    name: "Top places to visit",
+    name: " places to visit",
     icon: <MapPin className="mr-2 h-4 w-4" />,
     isPublic: true,
   },

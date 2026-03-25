@@ -104,7 +104,7 @@ const TopPlacesToVisit = ({
   return (
     <SectionWrapper id="topplacestovisit">
       <h2 className="mb-2 text-lg font-semibold tracking-wide flex items-center">
-        <MapPin className="mr-2" /> Top places to visit
+        <MapPin className="mr-2" />  places to visit
       </h2>
 
       <div className="flex flex-col bg-blue-50 dark:bg-background rounded-md lg:flex-row">
