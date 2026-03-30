@@ -62,6 +62,9 @@ export async function generatePlanAction(formData: formSchemaType) {
       companion,
       isGeneratedUsingAI: true,
       userPrompt: enrichedPrompt,
+      startingLocation: startingLocation ?? undefined,
+      departureTransport: departureTransport ?? undefined,
+      localTransport: localTransport ?? undefined,
     },
     { token }
   );

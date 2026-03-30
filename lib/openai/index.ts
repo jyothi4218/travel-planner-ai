@@ -92,16 +92,24 @@ export const generatebatch3 = (inputParams: GroqInputType) => {
     ? Math.ceil((inputParams.toDate - inputParams.fromDate) / (1000 * 60 * 60 * 24)) + 1
     : 3;
 
+  const travelDayRule = inputParams.startingLocation
+    ? `- DAY 1 IS A TRAVEL DAY from ${inputParams.startingLocation} to the destination.
+  - Show the exact travel plan: departure time from ${inputParams.startingLocation}, ${inputParams.departureTransport ? `travel mode: ${inputParams.departureTransport}` : "transport mode"}, arrival time, journey duration, how to reach accommodation.
+  - Morning = preparation & departure from ${inputParams.startingLocation}. Afternoon = journey. Evening = arrival & check-in. Night = rest/settle in.
+  - Day 1 title MUST include the journey e.g. "${inputParams.startingLocation} to [Destination] — Journey Begins!"`
+    : "";
+
   const description = `Create a ${days}-day itinerary for: ${context}
 
 RULES:
-${inputParams.startingLocation ? `- Day 1 = travel day FROM ${inputParams.startingLocation} TO destination. Show exact departure time, travel mode, arrival time, check-in.` : ""}
+${travelDayRule}
 - Each day title: vivid and specific e.g. "Amber Fort, Jantar Mantar & Sunset at Nahargarh" NOT "Day 2 Sightseeing"
 - daytheme: one line e.g. "History & Architecture"
 - estimateddailycost: e.g. "2500-4000 INR per person"
 - morning/afternoon/evening/night activities: format "[TIME] — [Real Place]: [what to do]. [why special]. Duration: [X hrs]. Entry: [cost]."
+- For Day 1 travel activities: describe exactly what the traveller does during the journey (pack, board, scenic views, arrival steps)
 - Group activities geographically
-- foodrecommendations: 3 per day. Format: "[Meal] at [Real Restaurant], [Area] — Must try: [dish] — Price: [range] — Tip: [specific tip]"
+- foodrecommendations: 3 per day. Format: "[Meal] at [Real Restaurant], [Area] — Must try: [dish] — Price: [range] — Tip: [specific tip]". For Day 1, include en-route food stops.
 - stayoptions: 2 hotels per day. Format: "[Hotel Name], [Area] — [X star] — [price/night] — Best for: [who] — Highlight: [what is special]"
 - optionalactivities: 3 hidden gems. Format: "[Activity] — [why special] — [duration] — [cost]"
 - quickbookings: hotels use type=hotel url=/book-hotel ONLY. Attractions use type=attraction with Google Maps URL.

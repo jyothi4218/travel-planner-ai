@@ -151,6 +151,9 @@ export default defineSchema({
     toDate: v.optional(v.number()),
     companion: v.optional(v.string()),
     isPublished: v.optional(v.boolean()),
+    startingLocation: v.optional(v.string()),
+    departureTransport: v.optional(v.string()),
+    localTransport: v.optional(v.string()),
   })
     .index("by_planId", ["planId"])
     .index("by_planId_userId", ["planId", "userId"])

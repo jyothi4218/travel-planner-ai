@@ -357,7 +357,7 @@ export const prepareBatch2 = action({
         );
         return null;
       }
-      const { activityPreferences, companion, fromDate, toDate } = planMetadata;
+      const { activityPreferences, companion, fromDate, toDate, startingLocation, departureTransport, localTransport } = planMetadata;
 
       const completion = await generatebatch2({
         userPrompt: emptyPlan.userPrompt,
@@ -365,6 +365,9 @@ export const prepareBatch2 = action({
         companion,
         fromDate,
         toDate,
+        startingLocation: startingLocation ?? undefined,
+        departureTransport: departureTransport ?? undefined,
+        localTransport: localTransport ?? undefined,
       });
 
 const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
@@ -413,7 +416,7 @@ export const prepareBatch3 = action({
         );
         return null;
       }
-      const { activityPreferences, companion, fromDate, toDate } = planMetadata;
+      const { activityPreferences, companion, fromDate, toDate, startingLocation, departureTransport, localTransport } = planMetadata;
 
       const completion = await generatebatch3({
         userPrompt: emptyPlan.userPrompt,
@@ -421,6 +424,9 @@ export const prepareBatch3 = action({
         companion,
         fromDate,
         toDate,
+        startingLocation: startingLocation ?? undefined,
+        departureTransport: departureTransport ?? undefined,
+        localTransport: localTransport ?? undefined,
       });
 
       const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
@@ -458,7 +464,7 @@ export const regenerateItinerary = action({
         { planId: plan._id }
       );
 
-      const { activityPreferences, companion, fromDate, toDate } = planMetadata ?? {};
+      const { activityPreferences, companion, fromDate, toDate, startingLocation, departureTransport, localTransport } = planMetadata ?? {};
 
       const completion = await generatebatch3({
         userPrompt: plan.userPrompt,
@@ -466,6 +472,9 @@ export const regenerateItinerary = action({
         companion,
         fromDate,
         toDate,
+        startingLocation: startingLocation ?? undefined,
+        departureTransport: departureTransport ?? undefined,
+        localTransport: localTransport ?? undefined,
       });
 
       const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
@@ -740,6 +749,9 @@ export const createEmptyPlan = mutation({
     companion: v.optional(v.string()),
     isGeneratedUsingAI: v.boolean(),
     userPrompt: v.optional(v.string()),
+    startingLocation: v.optional(v.string()),
+    departureTransport: v.optional(v.string()),
+    localTransport: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await getIdentityOrThrow(ctx);
@@ -779,6 +791,9 @@ export const createEmptyPlan = mutation({
       toDate: args.toDate,
       companion: args.companion,
       isPublished: false,
+      startingLocation: args.startingLocation,
+      departureTransport: args.departureTransport,
+      localTransport: args.localTransport,
     });
 
     console.log(
