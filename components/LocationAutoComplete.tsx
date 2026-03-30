@@ -1,90 +1,78 @@
 "use client";
-import { Input } from "@/components/ui/input";
-import { ChangeEvent, useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Search } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useRef, useState } from "react";
+import { MapPin, X } from "lucide-react";
 
-type LocationAutoCompletePropType = {
-  planId: string;
-  addNewPlaceToTopPlaces: (lat: number, lng: number, placeName: string) => void;
+type LocationAutoCompleteProps = {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
 };
 
-const LocationAutoComplete = ({ planId, addNewPlaceToTopPlaces }: LocationAutoCompletePropType) => {
-  const [isSaving, setIsSaving] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
+const LocationAutoComplete = ({ value, onChange, placeholder = "e.g. Hyderabad, Telangana, India" }: LocationAutoCompleteProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [inputValue, setInputValue] = useState(value || "");
 
-  const updatePlaceToVisit = useMutation(api.plan.updatePlaceToVisit);
+  useEffect(() => {
+    if (!inputRef.current || !window.google) return;
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ["(cities)"],
+      fields: ["formatted_address", "name", "address_components"],
+    });
 
-  const handleAddPlace = async () => {
-    if (!searchQuery.trim()) return;
+    autocompleteRef.current.addListener("place_changed", () => {
+      const place = autocompleteRef.current?.getPlace();
+      if (!place) return;
 
-    setIsSaving(true);
-    const { dismiss } = toast({ description: `Adding ${searchQuery}...` });
+      const components = place.address_components || [];
+      const city = components.find(c => c.types.includes("locality"))?.long_name
+        || components.find(c => c.types.includes("administrative_area_level_2"))?.long_name
+        || place.name || "";
+      const state = components.find(c => c.types.includes("administrative_area_level_1"))?.long_name || "";
+      const country = components.find(c => c.types.includes("country"))?.long_name || "";
 
-    try {
-      // Use a free geocoding API to get coordinates
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`
-      );
-      const data = await response.json();
+      const fullLocation = [city, state, country].filter(Boolean).join(", ");
+      setInputValue(fullLocation);
+      onChange(fullLocation);
+    });
 
-      if (data && data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lng = parseFloat(data[0].lon);
-        const name = data[0].display_name.split(",")[0];
-
-        await updatePlaceToVisit({
-          placeName: name,
-          lat,
-          lng,
-          planId: planId as Id<"plan">,
-        });
-
-        addNewPlaceToTopPlaces(lat, lng, name);
-        setSearchQuery("");
-        dismiss();
-        toast({ description: `✅ ${name} added successfully!` });
-      } else {
-        toast({ description: "Place not found. Try a different name.", variant: "destructive" });
+    return () => {
+      if (autocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
-    } catch (error) {
-      toast({ description: "Error finding place. Try again.", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
+    };
+  }, []);
+
+  const handleClear = () => {
+    setInputValue("");
+    onChange("");
+    inputRef.current?.focus();
   };
 
   return (
-    <div className="relative flex gap-2">
-      <div className="relative flex-1">
-        <Input
-          disabled={isSaving}
-          type="text"
-          className="font-light h-12"
-          placeholder="Search new location"
-          onChange={handleSearch}
-          value={searchQuery}
-          onKeyDown={(e) => e.key === "Enter" && handleAddPlace()}
-        />
-        <div className="absolute right-3 top-0 h-full flex items-center">
-          <Search className="w-4 h-4" />
-        </div>
-      </div>
-      <button
-        onClick={handleAddPlace}
-        disabled={isSaving || !searchQuery.trim()}
-        className="px-4 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
-      >
-        {isSaving ? "Adding..." : "Add"}
-      </button>
+    <div className="relative">
+      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputValue}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+          if (!e.target.value) onChange("");
+        }}
+        placeholder={placeholder}
+        className="w-full pl-9 pr-8 py-2 border border-border rounded-xl text-sm bg-background focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {inputValue && (
+        <button
+          type="button"
+          onClick={handleClear}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      )}
     </div>
   );
 };

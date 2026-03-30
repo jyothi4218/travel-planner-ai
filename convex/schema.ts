@@ -12,6 +12,8 @@ export default defineSchema({
     topplacestovisit: v.array(
       v.object({
         name: v.string(),
+        description: v.optional(v.string()),
+        category: v.optional(v.string()),
         coordinates: v.object({
           lat: v.float64(),
           lng: v.float64(),
@@ -25,6 +27,8 @@ export default defineSchema({
     itinerary: v.array(
       v.object({
         title: v.string(),
+        daytheme: v.optional(v.string()),
+        estimateddailycost: v.optional(v.string()),
         activities: v.object({
           morning: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
           afternoon: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),

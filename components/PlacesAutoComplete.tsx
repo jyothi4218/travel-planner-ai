@@ -1,55 +1,60 @@
 "use client";
-import { Input } from "@/components/ui/input";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
-import { formSchemaType } from "@/components/NewPlanForm";
 
-type PlacesAutoCompleteProps = {
-  selectedFromList: boolean;
-  setSelectedFromList: Dispatch<SetStateAction<boolean>>;
-  form: UseFormReturn<formSchemaType, any, any>;
-  field: ControllerRenderProps<formSchemaType, "placeName">;
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+
+const PlacesAutoComplete = ({ field, form, setSelectedFromList }: any) => {
+  const [results, setResults] = useState<any[]>([]);
+
+  let timeout: any;
+
+const handleSearch = (value: string) => {
+  field.onChange(value);
+
+  clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    if (!value) {
+      setResults([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/location?q=${value}`);
+      const data = await res.json();
+      setResults(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, 500); // VERY IMPORTANT
 };
 
-const PlacesAutoComplete = ({
-  form,
-  field,
-  selectedFromList,
-  setSelectedFromList,
-}: PlacesAutoCompleteProps) => {
-
-  const isEnglish = (text: string) => /^[A-Za-z0-9\s,.-]+$/.test(text);
-
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    if (!value) {
-      field.onChange(value);
-      form.clearErrors("placeName");
-      return;
-    }
-
-    if (!isEnglish(value)) {
-      form.setError("placeName", {
-        message: "This tool supports only English as input.",
-        type: "custom",
-      });
-      return;
-    }
-
-    form.clearErrors("placeName");
-    setSelectedFromList(true);
-    field.onChange(value);
-  };
-
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <Input
-        type="text"
-        placeholder="Search for your destination city..."
-        onChange={handleSearch}
-        value={field.value}
+        placeholder="Search city..."
+        value={field.value || ""}
+        onChange={(e) => handleSearch(e.target.value)}
       />
+
+      {results.length > 0 && (
+        <div className="absolute z-50 bg-white border w-full mt-1 rounded shadow max-h-60 overflow-y-auto">
+          {results.slice(0, 5).map((item, index) => (
+            <div
+              key={index}
+              className="p-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                field.onChange(item.display_name);
+                setResults([]);
+                setSelectedFromList(true);
+                form.clearErrors(field.name);
+              }}
+            >
+              {item.display_name}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

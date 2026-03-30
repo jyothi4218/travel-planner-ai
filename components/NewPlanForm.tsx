@@ -16,6 +16,7 @@ import ActivityPreferences from "@/components/plan/ActivityPreferences";
 import DateRangeSelector from "@/components/common/DateRangeSelector";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import LocationAutoComplete from "@/components/LocationAutoComplete";
 
 const formSchema = z.object({
   placeName: z.string({ required_error: "Please select a place" }).min(3, "Place name should be at least 3 characters long"),
@@ -81,7 +82,8 @@ const NewPlanForm = ({ closeModal }: { closeModal: Dispatch<SetStateAction<boole
 
   const [step, setStep] = useState(0);
   const [pendingAIPlan, startTransactionAiPlan] = useTransition();
-  const [selectedFromList, setSelectedFromList] = useState(false);
+const [startSelected, setStartSelected] = useState(false);
+const [destSelected, setDestSelected] = useState(false);
   const [newTheme, setNewTheme] = useState("");
   const { toast } = useToast();
 
@@ -174,7 +176,7 @@ const NewPlanForm = ({ closeModal }: { closeModal: Dispatch<SetStateAction<boole
       </div>
 
       {/* ── Right Form ── */}
-      <div className="flex-1 flex flex-col p-7 overflow-y-auto max-h-[580px]">
+      <div className="flex-1 flex flex-col p-7">
         <h2 className="text-xl font-bold mb-5">Create Travel Plan</h2>
 
         <Form {...form}>
@@ -183,18 +185,39 @@ const NewPlanForm = ({ closeModal }: { closeModal: Dispatch<SetStateAction<boole
             {/* STEP 1 */}
             {step === 0 && (
               <div className="space-y-4">
-                <FormField control={form.control} name="startingLocation" render={({ field }) => (
+              <FormField
+                control={form.control}
+                name="startingLocation"
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Where are you starting your trip from? <span className="text-muted-foreground text-xs">(Optional)</span></FormLabel>
-                    <FormControl><Input placeholder="e.g. Hyderabad, India" {...field} /></FormControl>
+                    <FormLabel>
+                      Where are you starting your trip from?
+                    </FormLabel>
+
+                    <FormControl>
+                      <PlacesAutoComplete
+                            field={field}
+                            form={form}
+                            selectedFromList={startSelected}
+                            setSelectedFromList={setStartSelected}
+                          />
+                    </FormControl>
+
+                    <FormMessage />
                   </FormItem>
-                )} />
+                )}
+              />
 
                 <FormField control={form.control} name="placeName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Search for your destination city</FormLabel>
                     <FormControl>
-                      <PlacesAutoComplete field={field} form={form} selectedFromList={selectedFromList} setSelectedFromList={setSelectedFromList} />
+                      <PlacesAutoComplete
+                            field={field}
+                            form={form}
+                            selectedFromList={destSelected}
+                            setSelectedFromList={setDestSelected}
+                          />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -203,7 +226,10 @@ const NewPlanForm = ({ closeModal }: { closeModal: Dispatch<SetStateAction<boole
                 <FormField control={form.control} name="datesOfTravel" render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Select Dates</FormLabel>
-                    <DateRangeSelector value={field.value} onChange={field.onChange} forGeneratePlan={true} />
+                    <DateRangeSelector value={field.value} 
+                    onChange={field.onChange} 
+                    forGeneratePlan={true}
+                    />
                     <FormMessage />
                   </FormItem>
                 )} />

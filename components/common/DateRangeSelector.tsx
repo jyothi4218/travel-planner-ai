@@ -64,10 +64,10 @@ const DateRangeSelector = ({
         collisionPadding={16}
       >
         <Calendar
-          month={value?.from}
+          month={value?.from ?? new Date()}
           mode="range"
           numberOfMonths={isMobile ? 1 : 2} // Responsive month count
-          max={10}
+          max={50}
           selected={value}
           onSelect={(e) => {
             onChange(e);
@@ -76,7 +76,11 @@ const DateRangeSelector = ({
               setDateRangePopoverOpen(false);
             }
           }}
-          disabled={(date) => date < new Date("1900-01-01")}
+          disabled={(date) => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return date < today;
+          }}
           initialFocus={!isMobile} // Disable auto-focus on mobile
           classNames={{
             day: "h-10 w-10 text-sm", // Larger touch targets
