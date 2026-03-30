@@ -123,7 +123,7 @@ const Plan = ({ planId }: PlanProps) => {
     <Itinerary
         itinerary={plan?.itinerary}
         planId={planId}
-        isLoading={isLoading || !plan?.contentGenerationState.itinerary}
+        isLoading={isLoading}
         allowEdit={true}
         fromDate={plan?.fromDate}
       />

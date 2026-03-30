@@ -443,6 +443,45 @@ export const prepareBatch3 = action({
   },
 });
 
+// Public action to re-run batch3 (itinerary + top places) for a specific plan
+export const regenerateItinerary = action({
+  args: { planId: v.string() },
+  handler: async (ctx, { planId }) => {
+    try {
+      const plan = await ctx.runQuery(internal.plan.readPlanData, {
+        id: planId as Doc<"plan">["_id"],
+      });
+      if (!plan) throw new ConvexError("Plan not found");
+
+      const planMetadata = await ctx.runQuery(
+        internal.planSettings.getPlanSettings,
+        { planId: plan._id }
+      );
+
+      const { activityPreferences, companion, fromDate, toDate } = planMetadata ?? {};
+
+      const completion = await generatebatch3({
+        userPrompt: plan.userPrompt,
+        activityPreferences,
+        companion,
+        fromDate,
+        toDate,
+      });
+
+      const nameMsg = completion?.choices[0]?.message?.tool_calls?.[0]?.function?.arguments as string;
+      const modelName = JSON.parse(nameMsg) as Pick<Doc<"plan">, "itinerary" | "topplacestovisit">;
+
+      await ctx.runMutation(internal.plan.updateItineraryTopPlacesToVisit, {
+        itinerary: modelName.itinerary,
+        topplacestovisit: modelName.topplacestovisit,
+        planId: plan._id,
+      });
+    } catch (error) {
+      throw new ConvexError(`Error regenerating itinerary: ${error}`);
+    }
+  },
+});
+
 //Mutation Patches after openAi responds
 export const updateAboutThePlaceBestTimeToVisit = internalMutation({
   args: {
@@ -516,6 +555,8 @@ export const updateItineraryTopPlacesToVisit = internalMutation({
     topplacestovisit: v.array(
       v.object({
         name: v.string(),
+        description: v.optional(v.string()),
+        category: v.optional(v.string()),
         coordinates: v.object({
           lat: v.float64(),
           lng: v.float64(),
@@ -525,6 +566,8 @@ export const updateItineraryTopPlacesToVisit = internalMutation({
     itinerary: v.array(
       v.object({
         title: v.string(),
+        daytheme: v.optional(v.string()),
+        estimateddailycost: v.optional(v.string()),
         activities: v.object({
           morning: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
           afternoon: v.array(v.object({ itineraryItem: v.string(), briefDescription: v.string() })),
