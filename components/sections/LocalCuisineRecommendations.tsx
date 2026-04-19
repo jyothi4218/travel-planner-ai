@@ -2,12 +2,11 @@
 import SectionWrapper from "@/components/sections/SectionWrapper";
 import EditList from "@/components/shared/EditList";
 import HeaderWithEditIcon from "@/components/shared/HeaderWithEditIcon";
-import List from "@/components/shared/List";
 import {Skeleton} from "@/components/ui/skeleton";
 import {api} from "@/convex/_generated/api";
 import {Doc} from "@/convex/_generated/dataModel";
 import {useMutation} from "convex/react";
-import {Utensils} from "lucide-react";
+import {Utensils, ExternalLink} from "lucide-react";
 import {useState} from "react";
 
 type LocalCuisineRecommendationsProps = {
@@ -15,6 +14,16 @@ type LocalCuisineRecommendationsProps = {
   planId: string;
   isLoading: boolean;
   allowEdit: boolean;
+};
+
+// Extracts just the restaurant name from the full string
+// e.g. "Idiyappam at Saravana Bhavan, Ernakulam — Delicious..." → "Saravana Bhavan"
+const extractRestaurantName = (item: string): string => {
+  // Format: "Dish at Restaurant, Area — description — Price: ..."
+  const atMatch = item.match(/at\s+([^,—]+)/i);
+  if (atMatch) return atMatch[1].trim();
+  // Fallback: return first part before —
+  return item.split("—")[0].trim();
 };
 
 export default function LocalCuisineRecommendations({
@@ -61,7 +70,26 @@ export default function LocalCuisineRecommendations({
               updateData={updateLocalCuisines}
             />
           ) : (
-            <List list={recommendations} />
+            <ol className="flex flex-col gap-2 mt-2">
+              {recommendations.map((item, index) => {
+                const restaurantName = extractRestaurantName(item);
+                const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(restaurantName)}`;
+                return (
+                  <li key={index} className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">{index + 1}.</span>
+                    
+                      <a href={googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium flex items-center gap-1"
+                    >
+                      {restaurantName}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
           )}
         </div>
       ) : (
