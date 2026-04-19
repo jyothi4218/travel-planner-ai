@@ -10,7 +10,6 @@ import { ThemeDropdown } from "@/components/ThemeDropdown";
 import FeedbackSheet from "@/components/common/FeedbackSheet";
 import Logo from "@/components/common/Logo";
 import MobileMenu from "@/components/plan/MobileMenu";
-import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
 import Link from "next/link";
 
 const Header = ({ isPublic }: { isPublic: boolean }) => {
@@ -71,7 +70,7 @@ const Header = ({ isPublic }: { isPublic: boolean }) => {
               <div className="flex justify-center items-center gap-2">
                 <PlanComboBox />
 
-                <CreditsDrawerWithDialog />
+                
                 <FeedbackSheet />
                 <ThemeDropdown />
                 <UserButton afterSignOutUrl="/" />

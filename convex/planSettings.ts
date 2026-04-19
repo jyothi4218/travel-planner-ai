@@ -177,7 +177,7 @@ export const updatePlanPrivacy = mutation({
         },
         {
           name: "adventuresactivitiestodo",
-          displayName: "Top activities to look for",
+          displayName: "Adventures",
           isValid: (val: typeof plan.adventuresactivitiestodo) =>
             Array.isArray(val) && val.length > 0,
         },

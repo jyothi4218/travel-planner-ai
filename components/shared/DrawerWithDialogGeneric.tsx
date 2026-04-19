@@ -18,32 +18,7 @@ import { Backpack, LockIcon } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const CreditsDrawerWithDialog = () => {
-  const user = useQuery(api.users.currentUser);
-  const boughtCredits = user?.credits ?? 0;
-  const freeCredits = user?.freeCredits ?? 0;
-  const totalCredits = freeCredits + boughtCredits;
 
-  const dialogTriggerBtn = (
-    <Button
-      aria-label={`open dialog button for Credits ${totalCredits ?? 0}`}
-      variant="link"
-      className="text-foreground"
-    >
-      Credits {totalCredits}
-    </Button>
-  );
-
-  return (
-    <DrawerWithDialog dialogTriggerBtn={dialogTriggerBtn}>
-      <CreditContent
-        boughtCredits={boughtCredits}
-        freeCredits={freeCredits}
-        email={user?.email}
-      />
-    </DrawerWithDialog>
-  );
-};
 
 export const GeneratePlanDrawerWithDialog = () => {
   const user = useQuery(api.users.currentUser);
@@ -65,15 +40,7 @@ export const GeneratePlanDrawerWithDialog = () => {
     <DrawerWithDialog dialogTriggerBtn={dialogTriggerBtn}>
       {({ setOpen }) => (
         <>
-          {totalCredits > 0 ? (
-            <NewPlanForm closeModal={setOpen} />
-          ) : (
-            <CreditContent
-              boughtCredits={boughtCredits}
-              freeCredits={freeCredits}
-              email={user?.email}
-            />
-          )}
+          <NewPlanForm closeModal={setOpen} />
         </>
       )}
     </DrawerWithDialog>

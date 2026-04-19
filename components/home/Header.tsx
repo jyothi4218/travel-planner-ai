@@ -10,7 +10,6 @@ import FeedbackSheet from "@/components/common/FeedbackSheet";
 import Logo from "@/components/common/Logo";
 import MenuItems from "@/components/home/MenuItems";
 import MobileMenu from "@/components/home/MobileMenu";
-import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
 
 const Header = () => {
   return (
@@ -36,7 +35,6 @@ const Header = () => {
             <Authenticated>
               <FeedbackSheet />
               <ThemeDropdown />
-              <CreditsDrawerWithDialog />
               <UserButton />
             </Authenticated>
           </div>

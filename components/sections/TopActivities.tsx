@@ -49,7 +49,7 @@ export default function TopActivities({
         handleToggleEditMode={handleToggleEditMode}
         hasData={activities != null && activities.length != 0}
         icon={<Sailboat className="mr-2" />}
-        title="Top activities to look for"
+        title="Adventures"
         isLoading={isLoading}
       />
       {!isLoading && activities ? (

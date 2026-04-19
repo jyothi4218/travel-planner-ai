@@ -27,11 +27,7 @@ export async function generatePlanAction(formData: formSchemaType) {
   } = formData;
 
   const userData = await fetchQuery(api.users.currentUser, {}, { token });
-  const totalCredits = (userData?.credits ?? 0) + (userData?.freeCredits ?? 0);
-  if (totalCredits <= 0) {
-    console.log(`unable to create ai travel plan due to low credits user:${userData?.userId}`);
-    return null;
-  }
+
 
   // Build enriched prompt with all user preferences
   const noOfDays = (differenceInDays(datesOfTravel.to, datesOfTravel.from) + 1).toString();
@@ -95,6 +91,6 @@ export async function generatePlanAction(formData: formSchemaType) {
     { token }
   );
 
-  fetchMutation(api.users.reduceUserCreditsByOne, {}, { token });
+
   redirect(`/plans/${planId}/plan?isNewPlan=true`);
 }

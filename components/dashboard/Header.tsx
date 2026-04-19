@@ -9,7 +9,6 @@ import { ThemeDropdown } from "@/components/ThemeDropdown";
 import FeedbackSheet from "@/components/common/FeedbackSheet";
 import Logo from "@/components/common/Logo";
 import MobileMenu from "@/components/dashboard/MobileMenu";
-import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
 import Link from "next/link";
 
 const Header = () => {
@@ -44,7 +43,6 @@ const Header = () => {
                   Community Plans
                 </Link>
 
-                <CreditsDrawerWithDialog />
                 <FeedbackSheet />
                 <ThemeDropdown />
                 <UserButton afterSignOutUrl="/" />

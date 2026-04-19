@@ -13,7 +13,6 @@ import useAuth from "@/hooks/useAuth";
 import { MapPinIcon } from "lucide-react";
 import { ThemeDropdown } from "@/components/ThemeDropdown";
 import FeedbackSheet from "@/components/common/FeedbackSheet";
-import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
 
 const Header = () => {
   const { isCurrentPathDashboard, isCurrentPathHome, isAuthenticated } =
@@ -84,7 +83,7 @@ const Header = () => {
                 {!isCurrentPathDashboard && !isCurrentPathHome && (
                   <PlanComboBox />
                 )}
-                <CreditsDrawerWithDialog />
+                
                 <FeedbackSheet />
                 <ThemeDropdown />
                 <UserButton afterSignOutUrl="/" />

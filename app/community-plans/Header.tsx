@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { ThemeDropdown } from "@/components/ThemeDropdown";
 import FeedbackSheet from "@/components/common/FeedbackSheet";
 import Logo from "@/components/common/Logo";
-import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
 import Link from "next/link";
 import MobileMenu from "@/app/community-plans/MobileMenu";
 
@@ -48,7 +47,6 @@ const Header = () => {
 
             <Authenticated>
               <div className="flex justify-center items-center gap-2">
-                <CreditsDrawerWithDialog />
                 <FeedbackSheet />
                 <ThemeDropdown />
                 <UserButton afterSignOutUrl="/" />
